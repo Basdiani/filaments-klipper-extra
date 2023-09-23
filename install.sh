@@ -37,7 +37,7 @@ link_extension()
 
      # Copy Filament.cfg to printer_data/config/
     echo "Copying Variables.cfg to printer_data/config/"
-    cp "${HOME}/filaments-klipper-extra/variables.cfg" "${HOME}/printer_data/config/"
+    cp "${HOME}/filaments-klipper-extra/Variables.cfg" "${HOME}/printer_data/config/"
 }
 
 # Step 4: Restarting Klipper
@@ -62,16 +62,16 @@ ready()
     echo "[READY] YOU ARE READY "
 }
 
-# Überprüfe, ob [include filaments.cfg] in ~/printer_data/config/printer.cfg vorhanden ist und füge sie hinzu, falls nicht vorhanden
+# Überprüfe, ob [include Filaments.cfg] in ~/printer_data/config/printer.cfg vorhanden ist und füge sie hinzu, falls nicht vorhanden
 check_include_line()
 {
     local config_file="${HOME}/printer_data/config/printer.cfg"
-    if grep -q -F '[include filaments.cfg]' "$config_file"; then
-        echo "[CONFIG] 'include filaments.cfg' line found in $config_file"
+    if grep -q -F '[include Filaments.cfg]' "$config_file"; then
+        echo "[CONFIG] 'include Filaments.cfg' line found in $config_file"
     else
-        echo "[CONFIG] 'include filaments.cfg' line not found in $config_file. Adding it..."
-        echo "[include filaments.cfg]" >> "$config_file"
-        echo "[CONFIG] 'include filaments.cfg' line has been added to $config_file"
+        echo "[CONFIG] 'include Filaments.cfg' line not found in $config_file. Adding it..."
+        echo "[include Filaments.cfg]" >> "$config_file"
+        echo "[CONFIG] 'include Filaments.cfg' line has been added to $config_file"
     fi
 }
 
