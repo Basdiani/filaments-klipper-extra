@@ -53,7 +53,8 @@ restart_klipper()
 }
 
 # Ready function
-function ready {
+ready()
+{
     echo "[READY] YOU ARE READY "
 }
 
@@ -83,5 +84,4 @@ done
 verify_ready
 link_extension
 restart_klipper
-ready
-
+ready  # Hier wird die ready-Funktion aufgerufen
