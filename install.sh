@@ -2,7 +2,7 @@
 KLIPPER_PATH="${HOME}/klipper"
 SYSTEMDDIR="/etc/systemd/system"
 
-# Step 1:  Verify Klipper has been installed
+# Step 1: Verify Klipper has been installed
 check_klipper()
 {
     if [ "$EUID" -eq 0 ]; then
@@ -24,20 +24,21 @@ check_klipper()
         exit -1
     fi
 }
-# Step 2: link extension to Klipper
+
+# Step 2: Link extension to Klipper
 link_extension()
 {
     echo "Linking [filaments] extension to Klipper..."
     ln -sf "${SRCDIR}/filaments.py" "${KLIPPER_PATH}/klippy/extras/filaments.py"
     
-    # Copy Filament.cfg
+    # Copy Filament.cfg to printer_data/config/
     echo "Copying Filament.cfg to printer_data/config/"
     cp "${HOME}/filaments-klipper-extra/Filament.cfg" "${HOME}/printer_data/config/"
 }
 
-
-# Step 4: restarting Klipper
+# Step 4: Restarting Klipper
 restart_klipper()
+{
     echo "[POST-INSTALL] Restarting Klipper..."
     if [ "$(sudo systemctl list-units --full -all -t service --no-legend | grep -F 'klipper.service')" ]; then
         sudo systemctl restart klipper
@@ -49,13 +50,13 @@ restart_klipper()
         echo "[ERROR] Klipper service not found, please install Klipper first!"
         exit -1
     fi
-    
 }
 
-ready() 
-{
+# Ready function
+function ready {
     echo "[READY] YOU ARE READY "
-    }
+}
+
 # Helper functions
 verify_ready()
 {
@@ -83,3 +84,4 @@ verify_ready
 link_extension
 restart_klipper
 ready
+
