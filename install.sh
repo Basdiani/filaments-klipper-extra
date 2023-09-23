@@ -3,54 +3,7 @@ KLIPPER_PATH="${HOME}/klipper"
 SYSTEMDDIR="/etc/systemd/system"
 
 # Step 1: Verify Klipper has been installed
-check_klipper()
-{
-    if [ "$EUID" -eq 0 ]; then
-        echo "[PRE-CHECK] This script must not be run as root!"
-        exit -1
-    fi
-
-    if [ "$(sudo systemctl list-units --full -all -t service --no-legend | grep -F 'klipper.service')" ]; then
-        printf "[PRE-CHECK] Klipper service found! Continuing...\n\n"
-        
-    elif [ "$(sudo systemctl list-units --full -all -t service --no-legend | grep -F 'klipper-1.service')" ]; then
-        printf "[PRE-CHECK] Klipper service found! Continuing...\n\n"
-
-    elif [ "$(sudo systemctl list-units --full -all -t service --no-legend | grep -F 'klipper-2.service')" ]; then
-        printf "[PRE-CHECK] Klipper service found! Continuing...\n\n"
-        
-    else
-        echo "[ERROR] Klipper service not found, please install Klipper first!"
-        exit -1
-    fi
-}
-
-# Step 2: Link extension to Klipper
-link_extension()
-{
-    echo "Linking [filaments] extension to Klipper..."
-    ln -sf "${SRCDIR}/filaments.py" "${KLIPPER_PATH}/klippy/extras/filaments.py"
-    
-    # Copy Filament.cfg to printer_data/config/
-    echo "Copying Filament.cfg to printer_data/config/"
-    cp "${HOME}/filaments-klipper-extra/Filament.cfg" "${HOME}/printer_data/config/"
-}
-
-# Step 4: Restarting Klipper
-restart_klipper()
-{
-    echo "[POST-INSTALL] Restarting Klipper..."
-    if [ "$(sudo systemctl list-units --full -all -t service --no-legend | grep -F 'klipper.service')" ]; then
-        sudo systemctl restart klipper
-    elif [ "$(sudo systemctl list-units --full -all -t service --no-legend | grep -F 'klipper-1.service')" ]; then
-        sudo systemctl restart klipper-1
-    elif [ "$(sudo systemctl list-units --full -all -t service --no-legend | grep -F 'klipper-2.service')" ]; then
-        sudo systemctl restart klipper-2
-    else
-        echo "[ERROR] Klipper service not found, please install Klipper first!"
-        exit -1
-    fi
-}
+# ... (Rest of your script)
 
 # Ready function
 ready()
@@ -58,14 +11,36 @@ ready()
     echo "[READY] YOU ARE READY "
 }
 
-# Helper functions
-verify_ready()
+# Überprüfe, ob [include filaments.cfg] in ~/printer_data/config/printer.cfg vorhanden ist und füge sie hinzu, falls nicht vorhanden
+check_include_line()
 {
-    if [ "$EUID" -eq 0 ]; then
-        echo "This script must not run as root"
-        exit -1
+    local config_file="${HOME}/printer_data/config/printer.cfg"
+    if grep -q -F '[include filaments.cfg]' "$config_file"; then
+        echo "[CONFIG] 'include filaments.cfg' line found in $config_file"
+    else
+        echo "[CONFIG] 'include filaments.cfg' line not found in $config_file. Adding it..."
+        echo "[include filaments.cfg]" >> "$config_file"
+        echo "[CONFIG] 'include filaments.cfg' line has been added to $config_file"
     fi
 }
+
+# Erstelle ein Backup der Konfigurationsdatei printer.cfg als Printerbackup.cfg
+create_config_backup()
+{
+    local config_file="${HOME}/printer_data/config/printer.cfg"
+    local backup_file="${HOME}/printer_data/config/Printerbackup.cfg"
+
+    if [ -f "$config_file" ]; then
+        echo "[BACKUP] Creating backup of printer.cfg as Printerbackup.cfg..."
+        cp "$config_file" "$backup_file"
+        echo "[BACKUP] Backup created as $backup_file"
+    else
+        echo "[BACKUP] printer.cfg not found. No backup created."
+    fi
+}
+
+# Helper functions
+# ... (Rest of your script)
 
 # Force script to exit if an error occurs
 set -e
@@ -82,6 +57,9 @@ done
 
 # Run steps
 verify_ready
+create_config_backup
+check_include_line
 link_extension
 restart_klipper
-ready  # Hier wird die ready-Funktion aufgerufen
+ready
+
