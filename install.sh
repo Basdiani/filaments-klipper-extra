@@ -33,11 +33,23 @@ link_extension()
 
 # Step 4: restarting Klipper
 restart_klipper()
-{
-    echo "Restarting Klipper..."
-    sudo systemctl restart klipper
+    echo "[POST-INSTALL] Restarting Klipper..."
+    if [ "$(sudo systemctl list-units --full -all -t service --no-legend | grep -F 'klipper.service')" ]; then
+        sudo systemctl restart klipper
+    elif [ "$(sudo systemctl list-units --full -all -t service --no-legend | grep -F 'klipper-1.service')" ]; then
+        sudo systemctl restart klipper-1
+    elif [ "$(sudo systemctl list-units --full -all -t service --no-legend | grep -F 'klipper-2.service')" ]; then
+        sudo systemctl restart klipper-2
+    else
+        echo "[ERROR] Klipper service not found, please install Klipper first!"
+        exit -1
+    fi
+    
 }
 
+function ready {
+    echo "[READY] YOU ARE READY "
+    }
 # Helper functions
 verify_ready()
 {
@@ -64,3 +76,4 @@ done
 verify_ready
 link_extension
 restart_klipper
+ready
