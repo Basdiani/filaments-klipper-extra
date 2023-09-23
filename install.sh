@@ -37,7 +37,7 @@ link_extension()
 
      # Copy Filament.cfg to printer_data/config/
     echo "Copying Variables.cfg to printer_data/config/"
-    cp "${HOME}/filaments-klipper-extra/Variables.cfg" "${HOME}/printer_data/config/"
+    cp "${HOME}/filaments-klipper-extra/variables.cfg" "${HOME}/printer_data/config/"
 }
 
 # Step 4: Restarting Klipper
@@ -75,14 +75,14 @@ check_include_line()
     fi
 }
 
-# Überprüfe, ob [update_manager client Filaments] in ~/printer_data/config/moonraker.cfg vorhanden ist und füge es hinzu, falls nicht vorhanden
+# Überprüfe, ob [update_manager client Filaments] in ~/printer_data/config/moonraker.conf vorhanden ist und füge es hinzu, falls nicht vorhanden
 check_update_manager()
 {
-    local config_file="${HOME}/printer_data/config/moonraker.cfg"
+    local config_file="${HOME}/printer_data/config/moonraker.conf"
     if grep -q -F '[update_manager client Filaments]' "$config_file"; then
-        echo "[CONFIG] '[update_manager client Filaments]' section found in $config_file"
+        echo "[CONFIG] '[update_manager client Filaments]' section found!"
     else
-        echo "[CONFIG] '[update_manager client Filaments]' section not found in $config_file. Adding it..."
+        echo "[CONFIG] '[update_manager]' section not found. Adding it..."
         cat <<EOF >> "$config_file"
 [update_manager client Filaments]
 type: git_repo
