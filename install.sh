@@ -2,48 +2,48 @@
 KLIPPER_PATH="${HOME}/klipper"
 SYSTEMDDIR="/etc/systemd/system"
 
-# Step 1: Verify Klipper has been installed
+# Function to check if Klipper is installed
 check_klipper()
 {
     if [ "$EUID" -eq 0 ]; then
-        echo "[PRE-CHECK] This script must not be run as root!"
+        echo "[PRE-CHECK] This script should not be run as root!"
         exit -1
     fi
 
     if [ "$(sudo systemctl list-units --full -all -t service --no-legend | grep -F 'klipper.service')" ]; then
-        printf "[PRE-CHECK] Klipper service found! Continuing...\n\n"
+        printf "[PRE-CHECK] Klipper service found! Proceeding...\n\n"
         
     elif [ "$(sudo systemctl list-units --full -all -t service --no-legend | grep -F 'klipper-1.service')" ]; then
-        printf "[PRE-CHECK] Klipper service found! Continuing...\n\n"
+        printf "[PRE-CHECK] Klipper service found! Proceeding...\n\n"
 
     elif [ "$(sudo systemctl list-units --full -all -t service --no-legend | grep -F 'klipper-2.service')" ]; then
-        printf "[PRE-CHECK] Klipper service found! Continuing...\n\n"
+        printf "[PRE-CHECK] Klipper service found! Proceeding...\n\n"
         
     else
-        echo "[ERROR] Klipper service not found, please install Klipper first!"
+        echo "[ERROR] Klipper service not found. Please install Klipper first!"
         exit -1
     fi
 }
 
-# Step 2: Link extension to Klipper and copy Filament.cfg to printer_data/config/
+# Function to link extensions with Klipper and copy configuration files
 link_extension()
 {
-    echo "Linking [filaments] extension to Klipper..."
+    echo "Linking [filaments] extension with Klipper..."
     ln -sf "${SRCDIR}/filaments.py" "${KLIPPER_PATH}/klippy/extras/filaments.py"
     
     # Copy Filament.cfg to printer_data/config/
     echo "Copying Filament.cfg to printer_data/config/"
     cp "${HOME}/filaments-klipper-extra/Filaments.cfg" "${HOME}/printer_data/config/"
 
-     # Copy Filament.cfg to printer_data/config/
+    # Copy Variables.cfg to printer_data/config/
     echo "Copying Variables.cfg to printer_data/config/"
     cp "${HOME}/filaments-klipper-extra/Variables.cfg" "${HOME}/printer_data/config/"
 }
 
-# Step 4: Restarting Klipper
+# Function to restart Klipper
 restart_klipper()
 {
-    echo "[POST-INSTALL] Restarting Klipper..."
+    echo "[AFTER INSTALLATION] Restarting Klipper..."
     if [ "$(sudo systemctl list-units --full -all -t service --no-legend | grep -F 'klipper.service')" ]; then
         sudo systemctl restart klipper
     elif [ "$(sudo systemctl list-units --full -all -t service --no-legend | grep -F 'klipper-1.service')" ]; then
@@ -51,38 +51,39 @@ restart_klipper()
     elif [ "$(sudo systemctl list-units --full -all -t service --no-legend | grep -F 'klipper-2.service')" ]; then
         sudo systemctl restart klipper-2
     else
-        echo "[ERROR] Klipper service not found, please install Klipper first!"
+        echo "[ERROR] Klipper service not found. Please install Klipper first!"
         exit -1
     fi
 }
 
-# Ready function
+# Function for readiness
 ready()
 {
-    echo "[READY] YOU ARE READY "
+    echo "[READY] You are ready."
 }
 
-# Überprüfe, ob [include Filaments.cfg] in ~/printer_data/config/printer.cfg vorhanden ist und füge sie hinzu, falls nicht vorhanden
+# Function to check if [include Filaments.cfg] is present in ~/printer_data/config/printer.cfg and add it if not
 check_include_line()
 {
     local config_file="${HOME}/printer_data/config/printer.cfg"
     if grep -q -F '[include Filaments.cfg]' "$config_file"; then
-        echo "[CONFIG] 'include Filaments.cfg' line found in $config_file"
+        echo "[CONFIGURATION] The 'include Filaments.cfg' line was found in $config_file."
     else
-        echo "[CONFIG] 'include Filaments.cfg' line not found in $config_file. Adding it..."
-        echo "[include Filaments.cfg]" >> "$config_file"
-        echo "[CONFIG] 'include Filaments.cfg' line has been added to $config_file"
+        echo "[CONFIGURATION] The 'include Filaments.cfg' line was not found in $config_file. Adding it..."
+        sed -i "1i[include Filaments.cfg]" "$config_file"
+        echo "[CONFIGURATION] The 'include Filaments.cfg' line was added to the beginning of $config_file."
     fi
 }
 
-# Überprüfe, ob [update_manager client Filaments] in ~/printer_data/config/moonraker.conf vorhanden ist und füge es hinzu, falls nicht vorhanden
+# Function to check and add update_manager configuration
 check_update_manager()
 {
     local config_file="${HOME}/printer_data/config/moonraker.conf"
     if grep -q -F '[update_manager client Filaments]' "$config_file"; then
-        echo "[CONFIG] '[update_manager client Filaments]' section found!"
+        echo "[CONFIGURATION] The section '[update_manager client Filaments]' was found."
     else
-        echo "[CONFIG] '[update_manager]' section not found. Adding it..."
+        echo "[CONFIGURATION] The section '[update_manager client Filaments]' was not found. Adding it..."
+        echo "" >> "$config_file"  # Add an empty line
         cat <<EOF >> "$config_file"
 [update_manager client Filaments]
 type: git_repo
@@ -92,48 +93,48 @@ origin: https://github.com/basdiani/filaments-klipper-extra.git
 install_script: install.sh
 managed_services: klipper
 EOF
-        echo "[CONFIG] '[update_manager client Filaments]' section has been added to $config_file"
+        echo "[CONFIGURATION] The section '[update_manager client Filaments]' was added to $config_file with an empty line at the end."
     fi
 }
 
-# Erstelle ein Backup der Konfigurationsdatei printer.cfg als Printerbackup.cfg
+# Function to create a configuration backup
 create_config_backup()
 {
     local config_file="${HOME}/printer_data/config/printer.cfg"
     local backup_file="${HOME}/printer_data/config/Printerbackup.cfg"
 
     if [ -f "$config_file" ]; then
-        echo "[BACKUP] Creating backup of printer.cfg as Printerbackup.cfg..."
+        echo "[BACKUP] Creating a backup of printer.cfg as Printerbackup.cfg..."
         cp "$config_file" "$backup_file"
-        echo "[BACKUP] Backup created as $backup_file"
+        echo "[BACKUP] Backup created at $backup_file."
     else
-        echo "[BACKUP] printer.cfg not found. No backup created."
+        echo "[BACKUP] printer.cfg not found. No backup was created."
     fi
 }
 
-# Helper functions
+# Helper function to check if the script is run as root
 verify_ready()
 {
     if [ "$EUID" -eq 0 ]; then
-        echo "This script must not run as root"
+        echo "This script should not be run as root."
         exit -1
     fi
 }
 
-# Force script to exit if an error occurs
+# Enable script termination on errors
 set -e
 
-# Find SRCDIR from the pathname of this script
+# Determine SRCDIR from the path of this script
 SRCDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )"/ && pwd )"
 
-# Parse command line arguments
+# Process command-line arguments
 while getopts "k:" arg; do
     case $arg in
         k) KLIPPER_PATH=$OPTARG;;
     esac
 done
 
-# Run steps
+# Execute the steps
 verify_ready
 create_config_backup
 check_include_line
