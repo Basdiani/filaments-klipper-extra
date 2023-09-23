@@ -25,7 +25,7 @@ check_klipper()
     fi
 }
 
-# Step 2: Link extension to Klipper
+# Step 2: Link extension to Klipper and copy Filament.cfg to printer_data/config/
 link_extension()
 {
     echo "Linking [filaments] extension to Klipper..."
@@ -71,6 +71,27 @@ check_include_line()
     fi
 }
 
+# Überprüfe, ob [update_manager client Filaments] in ~/printer_data/config/moonraker.cfg vorhanden ist und füge es hinzu, falls nicht vorhanden
+check_update_manager()
+{
+    local config_file="${HOME}/printer_data/config/moonraker.cfg"
+    if grep -q -F '[update_manager client Filaments]' "$config_file"; then
+        echo "[CONFIG] '[update_manager client Filaments]' section found in $config_file"
+    else
+        echo "[CONFIG] '[update_manager client Filaments]' section not found in $config_file. Adding it..."
+        cat <<EOF >> "$config_file"
+[update_manager client Filaments]
+type: git_repo
+path: ~/filaments-klipper-extra
+primary_branch: mainline
+origin: https://github.com/basdiani/filaments-klipper-extra.git
+install_script: install.sh
+managed_services: klipper
+EOF
+        echo "[CONFIG] '[update_manager client Filaments]' section has been added to $config_file"
+    fi
+}
+
 # Erstelle ein Backup der Konfigurationsdatei printer.cfg als Printerbackup.cfg
 create_config_backup()
 {
@@ -112,6 +133,7 @@ done
 verify_ready
 create_config_backup
 check_include_line
+check_update_manager
 link_extension
 restart_klipper
 ready
