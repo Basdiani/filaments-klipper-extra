@@ -29,7 +29,12 @@ link_extension()
 {
     echo "Linking [filaments] extension to Klipper..."
     ln -sf "${SRCDIR}/filaments.py" "${KLIPPER_PATH}/klippy/extras/filaments.py"
+    
+    # Copy Filament.cfg
+    echo "Copying Filament.cfg to printer_data/config/"
+    cp "${HOME}/filaments-klipper-extra/Filament.cfg" "${HOME}/printer_data/config/"
 }
+
 
 # Step 4: restarting Klipper
 restart_klipper()
@@ -47,7 +52,8 @@ restart_klipper()
     
 }
 
-function ready {
+ready() 
+{
     echo "[READY] YOU ARE READY "
     }
 # Helper functions
