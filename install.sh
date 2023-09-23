@@ -34,6 +34,10 @@ link_extension()
     # Copy Filament.cfg to printer_data/config/
     echo "Copying Filament.cfg to printer_data/config/"
     cp "${HOME}/filaments-klipper-extra/Filament.cfg" "${HOME}/printer_data/config/"
+
+     # Copy Filament.cfg to printer_data/config/
+    echo "Copying Variables.cfg to printer_data/config/"
+    cp "${HOME}/filaments-klipper-extra/Variables.cfg" "${HOME}/printer_data/config/"
 }
 
 # Step 4: Restarting Klipper
