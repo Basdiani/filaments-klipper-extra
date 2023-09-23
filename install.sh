@@ -5,15 +5,25 @@ SYSTEMDDIR="/etc/systemd/system"
 # Step 1:  Verify Klipper has been installed
 check_klipper()
 {
-    if [ "$(sudo systemctl list-units --full -all -t service --no-legend | grep -F "klipper.service")" ]; then
-        echo "Klipper service found!"
-    else
-        echo "Klipper service not found, please install Klipper first"
+    if [ "$EUID" -eq 0 ]; then
+        echo "[PRE-CHECK] This script must not be run as root!"
         exit -1
     fi
 
-}
+    if [ "$(sudo systemctl list-units --full -all -t service --no-legend | grep -F 'klipper.service')" ]; then
+        printf "[PRE-CHECK] Klipper service found! Continuing...\n\n"
+        
+    elif [ "$(sudo systemctl list-units --full -all -t service --no-legend | grep -F 'klipper-1.service')" ]; then
+        printf "[PRE-CHECK] Klipper service found! Continuing...\n\n"
 
+    elif [ "$(sudo systemctl list-units --full -all -t service --no-legend | grep -F 'klipper-2.service')" ]; then
+        printf "[PRE-CHECK] Klipper service found! Continuing...\n\n"
+        
+    else
+        echo "[ERROR] Klipper service not found, please install Klipper first!"
+        exit -1
+    fi
+}
 # Step 2: link extension to Klipper
 link_extension()
 {
