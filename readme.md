@@ -16,15 +16,13 @@ I'll take this warning down when the code is well tested and the GCode interface
 Clone this git repo to your printers home directory (e.g. /home/pi):
 
 ```bash
-git clone https://github.com/garethky/filaments-klipper-extra.git
-```
-
-Then run the install script. The install script assumes that Klipper is also installed in your home directory under "klipper": `${HOME}/klipper`.
-
-```bash
+git clone https://github.com/basdiani/filaments-klipper-extra.git
 cd ~/filaments-klipper-extra
 ./install.sh
 ```
+
+Then run the install script. The install script assumes that Klipper is also installed in your home directory under "klipper": `${HOME}/klipper`. Otherwise use ./install.sh -k "/path/to/klipper"
+
 
 Optionally you can tell Moonraker's update manager about this plugin by 
 adding this configuration block to the `moonraker.conf` of your printer:
@@ -34,7 +32,7 @@ adding this configuration block to the `moonraker.conf` of your printer:
 type: git_repo
 path: ~/filaments-klipper-extra
 primary_branch: mainline
-origin: https://github.com/garethky/filaments-klipper-extra.git
+origin: https://github.com/basdiani/filaments-klipper-extra.git
 install_script: install.sh
 managed_services: klipper
 ```
